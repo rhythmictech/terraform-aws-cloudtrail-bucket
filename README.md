@@ -1,4 +1,5 @@
-# terraform-aws-route53-endpoint
+# terraform-aws-cloudtrail-bucket
+
 [![](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/check/badge.svg)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions)
 
 Create and manage a bucket suitable for encrypted CloudTrail logging
