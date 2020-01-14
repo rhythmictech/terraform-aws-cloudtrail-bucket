@@ -62,8 +62,7 @@ resource "aws_kms_key" "cloudtrail_key" {
     {
       "Name" = "cloudtrail-key"
     },
-    local.common_tags,
-    var.extra_tags,
+    var.tags
   )
 }
 
@@ -71,4 +70,3 @@ resource "aws_kms_alias" "cloudtrail_key" {
   name          = "alias/cloudtrail_key"
   target_key_id = aws_kms_key.cloudtrail_key.id
 }
-

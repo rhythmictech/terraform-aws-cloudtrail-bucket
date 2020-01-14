@@ -8,8 +8,7 @@ locals {
 resource "aws_s3_bucket" "cloudtrail_bucket" {
   bucket = "${local.account_id}-${var.region}-cloudtrail"
   acl    = "private"
-
-  tags = merge(local.common_tags, var.extra_tags)
+  tags   = var.tags
 
   versioning {
     enabled = true
@@ -82,4 +81,3 @@ resource "aws_s3_bucket_policy" "default" {
 EOF
 
 }
-

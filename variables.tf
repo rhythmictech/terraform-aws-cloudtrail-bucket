@@ -1,34 +1,15 @@
-locals {
-  common_tags = {
-    namespace = var.namespace
-    owner     = var.owner
-    env       = var.env
-  }
-}
-
-variable "extra_tags" {
-  description = "Mapping of any extra tags you want added to resources"
-  type        = map(string)
-  default     = {}
+variable "logging_bucket" {
+  description = "S3 bucket with suitable access for logging requests to the cloudtrail bucket"
+  type        = string
 }
 
 variable "region" {
-  type = string
+  description = "Region to create KMS key in"
+  type        = string
 }
 
-variable "namespace" {
-  type = string
+variable "tags" {
+  default     = {}
+  description = "Mapping of any extra tags you want added to resources"
+  type        = map(string)
 }
-
-variable "env" {
-  type = string
-}
-
-variable "owner" {
-  type = string
-}
-
-variable "logging_bucket" {
-  type = string
-}
-
