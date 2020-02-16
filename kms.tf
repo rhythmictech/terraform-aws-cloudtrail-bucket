@@ -1,21 +1,24 @@
-data "aws_iam_policy_document" "cloudtrail_kms_policy" {
+data "aws_iam_policy_document" "key" {
   statement {
-    effect    = "Allow"
     actions   = ["kms:*"]
+    effect    = "Allow"
     resources = ["*"]
+
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${local.account_id}:root"]
     }
   }
+
   statement {
-    effect    = "Allow"
     actions   = ["kms:GenerateDataKey*"]
+    effect    = "Allow"
     resources = ["*"]
+
     condition {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-      values   = ["arn:aws:cloudtrail:*:${local.account_id}:trail/*"]
+      values   = local.kms_key_encrypt_resources
     }
 
     principals {
@@ -24,7 +27,6 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
     }
   }
   statement {
-    effect = "Allow"
     actions = [
       "kms:Encrypt*",
       "kms:Decrypt*",
@@ -32,6 +34,7 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
       "kms:GenerateDataKey*",
       "kms:Describe*",
     ]
+    effect    = "Allow"
     resources = ["*"]
 
     principals {
@@ -39,11 +42,10 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
       identifiers = ["logs.${var.region}.amazonaws.com"]
     }
   }
+
   statement {
-    effect = "Allow"
-    actions = [
-      "kms:Describe*",
-    ]
+    actions   = ["kms:Describe*"]
+    effect    = "Allow"
     resources = ["*"]
 
     principals {
@@ -53,11 +55,11 @@ data "aws_iam_policy_document" "cloudtrail_kms_policy" {
   }
 }
 
-resource "aws_kms_key" "cloudtrail_key" {
+resource "aws_kms_key" "this" {
   deletion_window_in_days = 7
   description             = "CloudTrail Encryption Key"
   enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.cloudtrail_kms_policy.json
+  policy                  = data.aws_iam_policy_document.key.json
   tags = merge(
     {
       "Name" = "cloudtrail-key"
@@ -66,7 +68,7 @@ resource "aws_kms_key" "cloudtrail_key" {
   )
 }
 
-resource "aws_kms_alias" "cloudtrail_key" {
+resource "aws_kms_alias" "this" {
   name          = "alias/cloudtrail_key"
-  target_key_id = aws_kms_key.cloudtrail_key.id
+  target_key_id = aws_kms_key.this.id
 }
