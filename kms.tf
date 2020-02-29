@@ -26,6 +26,7 @@ data "aws_iam_policy_document" "key" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
   }
+
   statement {
     actions = [
       "kms:Encrypt*",
