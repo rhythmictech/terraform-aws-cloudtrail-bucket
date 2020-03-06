@@ -36,3 +36,4 @@ module "cloudtrail-bucket" {
 
 ## Related Projects
 * [CloudTrail Logging module](https://github.com/rhythmictech/terraform-aws-cloudtrail-logging)
+* [S3 Logging Module](https://github.com/rhythmictech/terraform-aws-s3logging-bucket)
