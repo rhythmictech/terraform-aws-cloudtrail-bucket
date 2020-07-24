@@ -8,6 +8,8 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   partition  = data.aws_partition.current.partition
 
+  bucket_name = var.bucket_name == "" ? "${local.account_id}-${var.region}-cloudtrail" : var.bucket_name
+
   # Account IDs that will have access to stream CloudTrail logs
   account_ids = concat([local.account_id], var.allowed_account_ids)
 
@@ -17,7 +19,7 @@ locals {
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${local.account_id}-${var.region}-cloudtrail"
+  bucket = local.bucket_name
   acl    = "private"
   tags   = var.tags
 
