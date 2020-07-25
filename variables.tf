@@ -5,7 +5,7 @@ variable "allowed_account_ids" {
 }
 
 variable "bucket_name" {
-  default     = "" # can't dynamically build the bucket name here
+  default     = null # can't dynamically build the bucket name here
   description = "Name of the S3 bucket to create. Defaults to {account_id}-{region}-cloudtrail."
   type        = string
 }

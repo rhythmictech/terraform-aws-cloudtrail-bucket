@@ -5,10 +5,9 @@ data "aws_partition" "current" {
 }
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
-  partition  = data.aws_partition.current.partition
-
-  bucket_name = var.bucket_name == "" ? "${local.account_id}-${var.region}-cloudtrail" : var.bucket_name
+  account_id  = data.aws_caller_identity.current.account_id
+  bucket_name = var.bucket_name == null ? "${local.account_id}-${var.region}-cloudtrail" : var.bucket_name
+  partition   = data.aws_partition.current.partition
 
   # Account IDs that will have access to stream CloudTrail logs
   account_ids = concat([local.account_id], var.allowed_account_ids)
