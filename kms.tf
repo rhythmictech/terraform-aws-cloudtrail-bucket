@@ -54,6 +54,17 @@ data "aws_iam_policy_document" "key" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
   }
+
+  statement {
+    actions   = ["kms:Decrypt"]
+    effect    = "Allow"
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = local.allow_kms_decrypt
+    }
+  }
 }
 
 resource "aws_kms_key" "this" {

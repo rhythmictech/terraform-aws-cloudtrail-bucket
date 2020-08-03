@@ -4,6 +4,12 @@ variable "allowed_account_ids" {
   type        = list(string)
 }
 
+variable "roles_allowed_kms_decrypt" {
+  default     = []
+  description = "Optional list of roles that have access to KMS decrypt and are permitted to decrypt logs"
+  type        = list(string)
+}
+
 variable "logging_bucket" {
   description = "S3 bucket with suitable access for logging requests to the cloudtrail bucket"
   type        = string
