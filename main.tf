@@ -1,19 +1,24 @@
 data "aws_caller_identity" "current" {
 }
 
+data "aws_partition" "current" {
+}
+
 locals {
-  account_id = data.aws_caller_identity.current.account_id
+  account_id  = data.aws_caller_identity.current.account_id
+  bucket_name = var.bucket_name == null ? "${local.account_id}-${var.region}-cloudtrail" : var.bucket_name
+  partition   = data.aws_partition.current.partition
 
   # Account IDs that will have access to stream CloudTrail logs
   account_ids = concat([local.account_id], var.allowed_account_ids)
 
   # Format account IDs into necessary resource lists.
   bucket_policy_put_resources = formatlist("${aws_s3_bucket.this.arn}/AWSLogs/%s/*", local.account_ids)
-  kms_key_encrypt_resources   = formatlist("arn:aws:cloudtrail:*:%s:trail/*", local.account_ids)
+  kms_key_encrypt_resources   = formatlist("arn:${local.partition}:cloudtrail:*:%s:trail/*", local.account_ids)
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${local.account_id}-${var.region}-cloudtrail"
+  bucket = local.bucket_name
   acl    = "private"
   tags   = var.tags
 

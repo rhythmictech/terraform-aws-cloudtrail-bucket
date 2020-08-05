@@ -20,6 +20,7 @@ module "cloudtrail-bucket" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | allowed\_account\_ids | Optional list of AWS Account IDs that are permitted to write to the bucket | list(string) | `[]` | no |
+| bucket\_name | Optional name for cloudtrail bucket | string | `{account_id}-{region}-cloudtrail` | no |
 | logging\_bucket | S3 bucket with suitable access for logging requests to the cloudtrail bucket | string | n/a | yes |
 | region | Region to create KMS key in | string | n/a | yes |
 | tags | Mapping of any extra tags you want added to resources | map(string) | `{}` | no |
