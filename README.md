@@ -17,13 +17,14 @@ module "cloudtrail-bucket" {
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Inputs
 
-| Name                         | Description                                                                              |     Type     | Default | Required |
-|------------------------------|------------------------------------------------------------------------------------------|:------------:|:-------:|:--------:|
-| allowed\_account\_ids        | Optional list of AWS Account IDs that are permitted to write to the bucket               | list(string) |  `[]`   |    no    |
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| allowed\_account\_ids | Optional list of AWS Account IDs that are permitted to write to the bucket | list(string) | `[]` | no |
+| bucket\_name | Optional name for cloudtrail bucket | string | `{account_id}-{region}-cloudtrail` | no |
 | roles\_allowed\_kms\_decrypt | Optional list of roles that have access to KMS decrypt and are permitted to decrypt logs | list(string) |  `[]`   |    no    |
-| logging\_bucket              | S3 bucket with suitable access for logging requests to the cloudtrail bucket             |    string    |   n/a   |   yes    |
-| region                       | Region to create KMS key in                                                              |    string    |   n/a   |   yes    |
-| tags                         | Mapping of any extra tags you want added to resources                                    | map(string)  |  `{}`   |    no    |
+| logging\_bucket | S3 bucket with suitable access for logging requests to the cloudtrail bucket | string | n/a | yes |
+| region | Region to create KMS key in | string | n/a | yes |
+| tags | Mapping of any extra tags you want added to resources | map(string) | `{}` | no |
 
 ## Outputs
 

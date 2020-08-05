@@ -4,6 +4,12 @@ variable "allowed_account_ids" {
   type        = list(string)
 }
 
+variable "bucket_name" {
+  default     = null
+  description = "Name of the S3 bucket to create. Defaults to {account_id}-{region}-cloudtrail."
+  type        = string
+}
+
 variable "roles_allowed_kms_decrypt" {
   default     = []
   description = "Optional list of roles that have access to KMS decrypt and are permitted to decrypt logs"
