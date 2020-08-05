@@ -15,6 +15,9 @@ locals {
   # Format account IDs into necessary resource lists.
   bucket_policy_put_resources = formatlist("${aws_s3_bucket.this.arn}/AWSLogs/%s/*", local.account_ids)
   kms_key_encrypt_resources   = formatlist("arn:${local.partition}:cloudtrail:*:%s:trail/*", local.account_ids)
+
+  # Roles that will have access to KMS decrypt, can be used to grant read access to logs in S3
+  allow_kms_decrypt = formatlist("arn:aws:iam::${local.account_id}:role/%s", var.roles_allowed_kms_decrypt)
 }
 
 resource "aws_s3_bucket" "this" {
