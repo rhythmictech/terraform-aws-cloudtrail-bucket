@@ -19,13 +19,14 @@ module "cloudtrail-bucket" {
 
 | Name | Version |
 |------|---------|
-| terraform | >= 0.12 |
+| terraform | >= 0.12.20 |
+| aws | ~> 2.44 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | n/a |
+| aws | ~> 2.44 |
 
 ## Inputs
 
