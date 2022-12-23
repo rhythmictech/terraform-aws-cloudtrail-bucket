@@ -1,8 +1,6 @@
-data "aws_caller_identity" "current" {
-}
+data "aws_caller_identity" "current" {}
 
-data "aws_partition" "current" {
-}
+data "aws_partition" "current" {}
 
 locals {
   account_id  = data.aws_caller_identity.current.account_id
@@ -22,41 +20,61 @@ locals {
 
 resource "aws_s3_bucket" "this" {
   bucket = local.bucket_name
-  acl    = "private"
   tags   = var.tags
-
-  lifecycle_rule {
-    enabled = true
-
-    transition {
-      days          = 30
-      storage_class = "STANDARD_IA"
-    }
-
-  }
-
-  logging {
-    target_bucket = var.logging_bucket
-    target_prefix = "${local.account_id}-${var.region}-cloudtrail/"
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-        kms_master_key_id = aws_kms_key.this.arn
-      }
-    }
-  }
-
-  versioning {
-    enabled = true
-  }
 
   lifecycle {
     prevent_destroy = true
   }
+}
 
+resource "aws_s3_bucket_acl" "this" {
+  bucket = aws_s3_bucket.this.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  count = var.lifecycle_rules == null ? 0 : 1
+
+  bucket = aws_s3_bucket.this.id
+
+  dynamic "rule" {
+    iterator = rule
+    for_each = var.lifecycle_rules
+
+    content {
+      id     = rule.value.id
+      status = rule.value.enabled ? "Enabled" : "Disabled"
+
+      filter {
+        prefix = lookup(rule.value, "prefix", null)
+      }
+
+      expiration {
+        days = lookup(rule.value, "expiration", 2147483647)
+      }
+
+      noncurrent_version_expiration {
+        noncurrent_days = lookup(rule.value, "noncurrent_version_expiration", 2147483647)
+      }
+
+      dynamic "transition" {
+        for_each = coalesce(rule.value.transition, [])
+
+        content {
+          days          = transition.value.days
+          storage_class = transition.value.storage_class
+        }
+      }
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.this]
+}
+
+resource "aws_s3_bucket_logging" "this" {
+  bucket        = aws_s3_bucket.this.id
+  target_bucket = var.logging_bucket
+  target_prefix = "${local.account_id}-${var.region}-cloudtrail/"
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
@@ -65,6 +83,27 @@ resource "aws_s3_bucket_public_access_block" "this" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  bucket = aws_s3_bucket.this.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.this.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "this" {
+  count = var.versioning_enabled ? 1 : 0
+
+  bucket = aws_s3_bucket.this.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 data "aws_iam_policy_document" "this" {
@@ -94,7 +133,6 @@ data "aws_iam_policy_document" "this" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
   }
-
 }
 
 resource "aws_s3_bucket_policy" "this" {
