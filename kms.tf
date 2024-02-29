@@ -73,9 +73,13 @@ data "aws_iam_policy_document" "key_roles" {
 data "aws_iam_policy_document" "key_empty" {
 }
 
+locals {
+  json_w_decrypt = [data.aws_iam_policy_document.key.json, data.aws_iam_policy_document.key_roles.json]
+  json_wo_decrypt = [data.aws_iam_policy_document.key.json, data.aws_iam_policy_document.key_empty.json]
+}
+
 data "aws_iam_policy_document" "key_merged_policy" {
-  source_json   = data.aws_iam_policy_document.key.json
-  override_json = length(local.allow_kms_decrypt) > 0 ? data.aws_iam_policy_document.key_roles.json : data.aws_iam_policy_document.key_empty.json
+  source_policy_documents = length(local.allow_kms_decrypt) > 0 ? local.json_w_decrypt : local.json_wo_decrypt
 }
 
 resource "aws_kms_key" "this" {
