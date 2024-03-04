@@ -27,11 +27,6 @@ resource "aws_s3_bucket" "this" {
   }
 }
 
-resource "aws_s3_bucket_acl" "this" {
-  bucket = aws_s3_bucket.this.id
-  acl    = "private"
-}
-
 resource "aws_s3_bucket_lifecycle_configuration" "this" {
   count = var.lifecycle_rules == null ? 0 : 1
 
