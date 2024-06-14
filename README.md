@@ -12,11 +12,16 @@ Create and manage a bucket suitable for encrypted CloudTrail logging. Supports i
 ## Usage
 To create a bucket in this account that can be logged to from acct 12345678 and the current account
 ```
+module "s3logging-bucket" {
+  source = "rhythmictech/s3logging-bucket/aws"
+  version = "v4.0.1"
+}
+
 # in acct 23456789
 module "cloudtrail-bucket" {
   source         = "git::https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket"
 
-  allowed_account_ids = [12345678]
+  allowed_account_ids = [12345678, 123456781, 123456782, 123456783]
   logging_bucket      = module.s3logging-bucket.s3logging_bucket_name
   region              = var.region
 }
@@ -29,7 +34,7 @@ module "cloudtrail-logging" {
 }
 ```
 
-Then in acct 12345678 you can log back to the bucket like this 
+Then in acct 12345678 and the other child accounts you can log back to the bucket like this 
 ```
 # in acct 12345678
 module "cloudtrail-logging" {
@@ -38,6 +43,30 @@ module "cloudtrail-logging" {
   kms_key_id        = "arn:aws:kms:us-east-1:23456789:key/a53f476a-e691-4d19-9003-202e6fb9c5b4"
   region            = var.region
 }
+```
+
+In this diagram Central Account is `12345678` from the example and Account A is `12345678`. Accounts B, C, and D would be other child accounts (`123456781, 123456782, 123456783`)
+```mermaid
+graph TD
+    subgraph Central Account
+        S3((S3 Bucket))
+    end
+    
+    subgraph Account A
+        A[CloudTrail] --> S3
+    end
+    
+    subgraph Account B  
+        B[CloudTrail] --> S3
+    end
+    
+    subgraph Account C
+        C[CloudTrail] --> S3
+    end
+    
+    subgraph Account D
+        D[CloudTrail] --> S3
+    end
 ```
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
