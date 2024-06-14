@@ -48,8 +48,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
         days = lookup(rule.value, "expiration", 2147483647)
       }
 
-      noncurrent_version_expiration {
-        noncurrent_days = lookup(rule.value, "noncurrent_version_expiration", 2147483647)
+      dynamic "noncurrent_version_expiration" {
+        for_each = lookup(rule.value, "noncurrent_version_expiration", null) != null ? [1] : []
+
+        content {
+          noncurrent_days = lookup(rule.value, "noncurrent_version_expiration", null)
+        }
       }
 
       dynamic "transition" {
