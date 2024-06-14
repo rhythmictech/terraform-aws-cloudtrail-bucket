@@ -1,22 +1,27 @@
 # terraform-aws-cloudtrail-bucket
 
-[![tflint](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/tflint/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Atflint+event%3Apush+branch%3Amaster)
-[![tfsec](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/tfsec/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Atfsec+event%3Apush+branch%3Amaster)
-[![yamllint](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/yamllint/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Ayamllint+event%3Apush+branch%3Amaster)
-[![misspell](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/misspell/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Amisspell+event%3Apush+branch%3Amaster)
-[![pre-commit-check](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/workflows/pre-commit-check/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Apre-commit-check+event%3Apush+branch%3Amaster)
-<a href="https://twitter.com/intent/follow?screen_name=RhythmicTech"><img src="https://img.shields.io/twitter/follow/RhythmicTech?style=social&logo=twitter" alt="follow on Twitter"></a>
+[![tflint](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions/workflows/tflint.yaml/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Atflint+event%3Apush+branch%3Amaster)
+[![tfsec](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions/workflows/tfsec.yaml/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Atfsec+event%3Apush+branch%3Amaster)
+[![yamllint](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions/workflows/yamllint.yaml/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Ayamllint+event%3Apush+branch%3Amaster)
+[![misspell](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions/workflows/misspell.yaml/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Amisspell+event%3Apush+branch%3Amaster)
+[![pre-commit-check](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions/workflows/pre-commit.yaml/badge.svg?branch=master&event=push)](https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket/actions?query=workflow%3Apre-commit-check+event%3Apush+branch%3Amaster)
+![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/RhythmicTech)
 
 Create and manage a bucket suitable for encrypted CloudTrail logging. Supports inbound logging from multiple accounts through the `allowed_account_ids` var.
 
 ## Usage
 To create a bucket in this account that can be logged to from acct 12345678 and the current account
 ```
+module "s3logging-bucket" {
+  source = "rhythmictech/s3logging-bucket/aws"
+  version = "v4.0.1"
+}
+
 # in acct 23456789
 module "cloudtrail-bucket" {
   source         = "git::https://github.com/rhythmictech/terraform-aws-cloudtrail-bucket"
 
-  allowed_account_ids = [12345678]
+  allowed_account_ids = [12345678, 123456781, 123456782, 123456783]
   logging_bucket      = module.s3logging-bucket.s3logging_bucket_name
   region              = var.region
 }
@@ -29,7 +34,7 @@ module "cloudtrail-logging" {
 }
 ```
 
-Then in acct 12345678 you can log back to the bucket like this 
+Then in acct 12345678 and the other child accounts you can log back to the bucket like this 
 ```
 # in acct 12345678
 module "cloudtrail-logging" {
@@ -40,13 +45,37 @@ module "cloudtrail-logging" {
 }
 ```
 
+In this diagram Central Account is `12345678` from the example and Account A is `12345678`. Accounts B, C, and D would be other child accounts (`123456781, 123456782, 123456783`)
+```mermaid
+graph TD
+    subgraph Central Account
+        S3((S3 Bucket))
+    end
+    
+    subgraph Account A
+        A[CloudTrail] --> S3
+    end
+    
+    subgraph Account B  
+        B[CloudTrail] --> S3
+    end
+    
+    subgraph Account C
+        C[CloudTrail] --> S3
+    end
+    
+    subgraph Account D
+        D[CloudTrail] --> S3
+    end
+```
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5 |
 
 ## Providers
 
@@ -65,7 +94,6 @@ No modules.
 | [aws_kms_alias.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_acl.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_lifecycle_configuration.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_policy.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |

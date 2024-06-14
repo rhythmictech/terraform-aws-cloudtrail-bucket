@@ -74,7 +74,7 @@ data "aws_iam_policy_document" "key_empty" {
 }
 
 locals {
-  json_w_decrypt = [data.aws_iam_policy_document.key.json, data.aws_iam_policy_document.key_roles.json]
+  json_w_decrypt  = [data.aws_iam_policy_document.key.json, data.aws_iam_policy_document.key_roles.json]
   json_wo_decrypt = [data.aws_iam_policy_document.key.json, data.aws_iam_policy_document.key_empty.json]
 }
 
